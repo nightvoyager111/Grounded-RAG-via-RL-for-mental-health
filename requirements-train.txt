@@ -1,0 +1,12 @@
+-r requirements-retrieval.txt
+
+# Verifier (NLI groundedness scorer)
+transformers>=4.44
+torch>=2.3
+sentencepiece>=0.2
+
+# DPO + GRPO
+trl>=0.11
+peft>=0.12
+accelerate>=0.34
+datasets>=2.20

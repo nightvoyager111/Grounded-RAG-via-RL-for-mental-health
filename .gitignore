@@ -1,0 +1,75 @@
+# ---- Secrets / env ----
+.env
+.env.*
+!.env.example
+CLAUDE.md
+.claude/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+pip-wheel-metadata/
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Testing / coverage / typing ----
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---- Project data (large / fetched / derived) ----
+data/raw/
+data/corpus/
+# Keep these tracked unless they're also large — uncomment as needed:
+# data/qa/
+# data/eval/
+# data/calibration/
+
+# ---- Model artifacts / checkpoints / logs ----
+src/results/
+results/
+outputs/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+wandb/
+mlruns/
+runs/
+logs/
+*.log
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

@@ -1,0 +1,20 @@
+embed_model: embed-v4.0
+embed_dim: 1024                 # Matryoshka
+rerank_model: rerank-v3.5
+top_n: 50                       # candidates from vector search
+top_k: 5                        # after rerank, passed to generator
+
+# Reproducibility. Bump these deliberately, never silently.
+seed: 20260704
+cohere_client_version: v2       # cohere.ClientV2 — pin so upstream SDK bumps
+                                # don't silently change embedding behavior.
+
+# Cohere embed v3+ requires input_type: doc vs query must match usage
+embed_input_type_doc: search_document
+embed_input_type_query: search_query
+
+# Local index location
+index_dir: data/index
+corpus_files:
+  - data/corpus/icd11.jsonl
+  - data/corpus/nimh.jsonl

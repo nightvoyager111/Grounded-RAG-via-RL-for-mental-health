@@ -1,0 +1,7 @@
+cohere>=5.11
+numpy>=1.26
+pyyaml>=6.0
+python-dotenv>=1.0
+tqdm>=4.66
+requests>=2.31
+beautifulsoup4>=4.12

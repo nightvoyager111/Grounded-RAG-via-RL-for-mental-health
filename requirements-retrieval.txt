@@ -5,3 +5,4 @@ python-dotenv>=1.0
 tqdm>=4.66
 requests>=2.31
 beautifulsoup4>=4.12
+pytest>=8.0

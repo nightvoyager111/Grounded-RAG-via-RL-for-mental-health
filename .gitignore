@@ -44,6 +44,7 @@ coverage.xml
 # ---- Project data (large / fetched / derived) ----
 data/raw/
 data/corpus/
+data/index/
 # Keep these tracked unless they're also large — uncomment as needed:
 # data/qa/
 # data/eval/

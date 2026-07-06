@@ -265,7 +265,7 @@ def built_retriever(tmp_path):
     cfg = _make_cfg(tmp_path, corpus_files=[corpus])
     build_index(cfg, cohere_client=FakeCohereClient(dim=cfg.embed_dim))
     fake = FakeCohereClient(dim=cfg.embed_dim)
-    return Retriever(cfg, cohere_client=fake), fake, cfg
+    return Retriever(cfg, cohere_client=fake, min_call_interval=0.0), fake, cfg
 
 
 def test_retriever_loads_index_on_init(built_retriever):

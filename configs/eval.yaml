@@ -1,0 +1,3 @@
+copy_ngram: 8
+questions_file: data/qa/baseline_questions.jsonl   # one JSON object per line: {"question": "..."}
+output_dir: src/results/baseline

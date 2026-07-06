@@ -1,0 +1,9 @@
+model_name: Qwen/Qwen2.5-1.5B-Instruct
+max_new_tokens: 200
+do_sample: false          # greedy for reproducible baseline
+temperature: 0.7          # only used if do_sample: true
+top_p: 0.9
+device: mps              # auto | cpu | cuda | mps
+dtype: float16               # auto | float16 | bfloat16 | float32
+seed: 20260704
+stop_strings: []

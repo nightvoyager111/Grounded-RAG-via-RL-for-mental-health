@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from src.grounded_rag.eval.runner import EvalConfig, run_eval
 from src.grounded_rag.generation.generator import GenerationConfig, HFGenerator
 from src.grounded_rag.retrieval import Retriever, load_config as load_retrieval_config
-from src.grounded_rag.verifier import StubVerifier
+from src.grounded_rag.verifier import NLIConfig, NLIVerifier, StubVerifier
 
 
 def _load_yaml(path: str) -> dict:
@@ -40,6 +40,10 @@ def main() -> None:
     ap.add_argument("--retrieval-config", default="configs/retrieval.yaml")
     ap.add_argument("--generation-config", default="configs/generation.yaml")
     ap.add_argument("--eval-config", default="configs/eval.yaml")
+    ap.add_argument("--verifier-config", default="configs/verifier.yaml")
+    ap.add_argument("--verifier", choices=["stub", "nli"], default="stub",
+                    help="stub=constant 0.5 placeholder (fast smoke test); "
+                         "nli=real NLI verifier (record real baseline)")
     args = ap.parse_args()
 
     load_dotenv()
@@ -55,7 +59,17 @@ def main() -> None:
 
     retriever = Retriever(retr_cfg)
     generator = HFGenerator(gen_cfg)
-    verifier = StubVerifier()
+    if args.verifier == "nli":
+        vraw = _load_yaml(args.verifier_config)
+        verifier = NLIVerifier(NLIConfig(
+            model_name=vraw["model_name"],
+            device=vraw["device"],
+            dtype=vraw["dtype"],
+            max_length=vraw["max_length"],
+            passage_join=vraw["passage_join"],
+        ))
+    else:
+        verifier = StubVerifier()
 
     report = run_eval(
         questions=_iter_questions(questions_file),

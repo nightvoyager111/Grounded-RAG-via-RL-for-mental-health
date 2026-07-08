@@ -1,0 +1,15 @@
+model_name: MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli
+device: auto              # auto | cpu | cuda | mps
+dtype: float32            # NLI head is small; fp32 avoids softmax noise
+max_length: 512           # premise+hypothesis truncation
+passage_join: "\n\n"      # only used when aggregate == concat
+aggregate: max            # "max" (per-passage NLI, take max) | "concat" (legacy)
+
+# Decision threshold applied to score in [0, 1]. Calibration picks this;
+# 0.5 is the starting point (raw entail - contradict == 0).
+threshold: 0.5
+
+# Where calibration reads/writes.
+calibration_pending: data/calibration/pending.jsonl   # unlabeled template
+calibration_labeled: data/calibration/labeled.jsonl   # user-labeled
+calibration_report:  data/calibration/report.json

@@ -19,10 +19,11 @@ class GenerationConfig:
     do_sample: bool = False
     temperature: float = 0.7
     top_p: float = 0.9
-    device: str = "auto"          
+    device: str = "auto"
     dtype: str = "auto"            # "auto" | "float16" | "bfloat16" | "float32"
     seed: int = 20260704
     stop_strings: List[str] = field(default_factory=list)
+    lora_adapter: Optional[str] = None   # path to a PEFT-saved LoRA (e.g. checkpoints/dpo)
 
 
 def _resolve_dtype(name: str):
@@ -59,6 +60,12 @@ class HFGenerator:
         if dtype is not None:
             kwargs["torch_dtype"] = dtype
         self._model = AutoModelForCausalLM.from_pretrained(self.cfg.model_name, **kwargs)
+        if self.cfg.lora_adapter:
+            # PeftModel wraps the base and adds the trained adapter. Weights
+            # are merged lazily during forward; no need to call merge_and_unload
+            # unless you plan to export.
+            from peft import PeftModel
+            self._model = PeftModel.from_pretrained(self._model, self.cfg.lora_adapter)
         if self.cfg.device != "auto":
             self._model.to(self.cfg.device)
         self._model.eval()

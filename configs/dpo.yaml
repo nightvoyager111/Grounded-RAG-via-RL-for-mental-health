@@ -23,17 +23,18 @@ base_model: Qwen/Qwen2.5-1.5B-Instruct
 output_dir: checkpoints/dpo
 use_unsloth: true                 # falls back to plain TRL + PEFT if unavailable
 
-# LoRA — small ranks are fine for 1.5B and keep the adapter <100MB.
+# LoRA — attention + MLP so DPO can actually rewire how the model uses
+# passages (attention only was too narrow — first run gave a null result).
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.05
-lora_target_modules: [q_proj, k_proj, v_proj, o_proj]
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
 
-# DPO hyperparams — TRL defaults are sensible; beta=0.1 is the standard start.
-beta: 0.1
-learning_rate: 5.0e-6
-num_train_epochs: 5          # 19 pairs × 5 epochs / eff batch 16 ≈ 6 steps. Bump if you scale pairs up.
+# DPO hyperparams — retuned after run #1 produced margins ≈ 0.
+beta: 0.05                        # lower → looser KL constraint, more training freedom on small data
+learning_rate: 2.0e-5             # was 5e-6, too low for LoRA on 20 pairs
+num_train_epochs: 10              # was 5; 19 pairs × 10 / eff batch 8 ≈ 24 steps
 per_device_train_batch_size: 2
-gradient_accumulation_steps: 8
+gradient_accumulation_steps: 4    # was 8; halving to double optimizer step count
 max_length: 1024                  # prompt + response; RAG prompts are long
 max_prompt_length: 768

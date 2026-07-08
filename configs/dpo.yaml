@@ -36,5 +36,5 @@ learning_rate: 2.0e-5             # was 5e-6, too low for LoRA on 20 pairs
 num_train_epochs: 10              # was 5; 19 pairs × 10 / eff batch 8 ≈ 24 steps
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 4    # was 8; halving to double optimizer step count
-max_length: 1024                  # prompt + response; RAG prompts are long
-max_prompt_length: 768
+max_length: 1792                  # was 1024 — median prompt+answer is ~1590 tokens; 1024 was truncating
+max_prompt_length: 1536

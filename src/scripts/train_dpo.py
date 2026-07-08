@@ -123,6 +123,7 @@ def main() -> None:
     # --- DPO trainer ---
     from trl import DPOConfig, DPOTrainer
 
+    import torch
     dpo_kwargs = dict(
         output_dir=output_dir,
         beta=cfg["beta"],
@@ -134,6 +135,11 @@ def main() -> None:
         logging_steps=5,
         save_strategy="epoch",
         report_to=[],
+        # Speed: fp16 doubles throughput on T4; gradient checkpointing halves
+        # activation memory so the longer max_length still fits in VRAM.
+        fp16=torch.cuda.is_available(),
+        gradient_checkpointing=True,
+        gradient_checkpointing_kwargs={"use_reentrant": False},
     )
     # `max_prompt_length` was removed as a direct DPOConfig arg in newer TRL;
     # only pass it if this TRL version still accepts it.

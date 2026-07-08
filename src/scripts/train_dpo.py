@@ -74,6 +74,10 @@ def _plain_load(model_name: str):
 
 
 def main() -> None:
+    import os
+    # Helps T4 avoid OOM from allocator fragmentation on long-sequence DPO.
+    os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--dpo-config", default="configs/dpo.yaml")
     ap.add_argument("--pairs", default=None, help="override pairs path")

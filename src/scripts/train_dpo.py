@@ -123,7 +123,7 @@ def main() -> None:
     # --- DPO trainer ---
     from trl import DPOConfig, DPOTrainer
 
-    dpo_cfg = DPOConfig(
+    dpo_kwargs = dict(
         output_dir=output_dir,
         beta=cfg["beta"],
         learning_rate=cfg["learning_rate"],
@@ -131,11 +131,16 @@ def main() -> None:
         per_device_train_batch_size=cfg["per_device_train_batch_size"],
         gradient_accumulation_steps=cfg["gradient_accumulation_steps"],
         max_length=cfg["max_length"],
-        max_prompt_length=cfg["max_prompt_length"],
         logging_steps=5,
         save_strategy="epoch",
         report_to=[],
     )
+    # `max_prompt_length` was removed as a direct DPOConfig arg in newer TRL;
+    # only pass it if this TRL version still accepts it.
+    import inspect
+    if "max_prompt_length" in inspect.signature(DPOConfig).parameters:
+        dpo_kwargs["max_prompt_length"] = cfg["max_prompt_length"]
+    dpo_cfg = DPOConfig(**dpo_kwargs)
     trainer = DPOTrainer(
         model=model,
         args=dpo_cfg,

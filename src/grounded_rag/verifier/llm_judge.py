@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from typing import Callable, Sequence
 
 
+
 JUDGE_SYSTEM = (
     "You are a text-comparison evaluator. You are NOT giving medical advice, "
     "diagnosing, or providing clinical guidance — you are only comparing two "
@@ -91,24 +92,17 @@ class LLMJudgeConfig:
     temperature: float = 0.0          # deterministic judging
     api_key_env: str = "COHERE_API_KEY"
     passage_join: str = "\n\n"        # unused; passages are formatted per-message
-    # Cohere trial keys allow ~20 chat calls/min → 3s min gap keeps us under.
-    # Same pacing pattern the retriever uses; override to 0 for paid keys.
-    min_call_interval: float = 3.5
-    max_retries: int = 6
-    retry_base_sleep: float = 8.0
 
 
-def _call_with_retry(fn: Callable, *, max_attempts: int, base_sleep: float):
-    """Retry on 429 / transient errors with exponential backoff. Mirrors
-    retrieval/search.py:_call_with_retry so both call paths behave the same
-    against the same trial-key rate limits."""
+def _call_with_retry(fn: Callable, *, max_attempts: int = 3, base_sleep: float = 1.0):
+    """Retry only on genuine network/5xx blips. Production keys don't hit 429s."""
     for attempt in range(max_attempts):
         try:
             return fn()
         except Exception as e:
             msg = str(e).lower()
-            transient = ("429" in msg or "too many" in msg or "rate limit" in msg
-                         or "timeout" in msg or "temporarily" in msg)
+            transient = ("timeout" in msg or "temporarily" in msg
+                         or "connection" in msg or "503" in msg or "502" in msg)
             if not transient or attempt == max_attempts - 1:
                 raise
             time.sleep(base_sleep * (2 ** attempt))
@@ -124,13 +118,6 @@ class LLMJudgeVerifier:
     def __init__(self, cfg: LLMJudgeConfig, client=None):
         self.cfg = cfg
         self._client = client
-        self._last_call_at = 0.0
-
-    def _pace(self) -> None:
-        gap = time.time() - self._last_call_at
-        if gap < self.cfg.min_call_interval:
-            time.sleep(self.cfg.min_call_interval - gap)
-        self._last_call_at = time.time()
 
     def _get_client(self):
         if self._client is not None:
@@ -149,19 +136,14 @@ class LLMJudgeVerifier:
         if not passages:
             return 0.5
         client = self._get_client()
-        self._pace()
-        resp = _call_with_retry(
-            lambda: client.chat(
-                model=self.cfg.model_name,
-                temperature=self.cfg.temperature,
-                messages=[
-                    {"role": "system", "content": JUDGE_SYSTEM},
-                    {"role": "user", "content": _build_user_prompt(passages, answer)},
-                ],
-            ),
-            max_attempts=self.cfg.max_retries,
-            base_sleep=self.cfg.retry_base_sleep,
-        )
+        resp = _call_with_retry(lambda: client.chat(
+            model=self.cfg.model_name,
+            temperature=self.cfg.temperature,
+            messages=[
+                {"role": "system", "content": JUDGE_SYSTEM},
+                {"role": "user", "content": _build_user_prompt(passages, answer)},
+            ],
+        ))
         # Cohere ClientV2 chat returns .message.content as a list of content
         # blocks; grab the text of the first (and typically only) block.
         content = resp.message.content

@@ -1,0 +1,39 @@
+# DPO knobs (CLAUDE.md Act 1). Two stages, one config:
+#   - Pair construction: local, cheap, API-bound (judge calls).
+#   - Training: GPU-bound, run on Colab / cloud.
+
+# --- Pair construction (build_dpo_pairs.py) ---
+questions_file: data/qa/baseline_questions.jsonl
+pairs_out: data/dpo/pairs.jsonl
+scored_out: data/dpo/scored_candidates.jsonl   # audit trail: every sample + score
+
+samples_per_question: 4           # K candidates per Q on the *correct* passages
+hard_negatives_per_question: 2    # extra samples on *swapped* passages (plausible-but-unsupported)
+sample_temperature: 0.8           # need spread across the K samples
+sample_top_p: 0.95
+
+# Pair rules — CLAUDE.md warns rejected must be plausible-but-unsupported.
+chosen_min_score: 0.75            # judge must agree the chosen is grounded
+rejected_max_score: 0.5           # loosened from 0.25 — baseline rarely hallucinates,
+                                  # so treat "partial support" as the negative class
+min_pair_gap: 0.25                # loosened from 0.5 to match
+
+# --- Training (train_dpo.py) ---
+base_model: Qwen/Qwen2.5-1.5B-Instruct
+output_dir: checkpoints/dpo
+use_unsloth: true                 # falls back to plain TRL + PEFT if unavailable
+
+# LoRA — small ranks are fine for 1.5B and keep the adapter <100MB.
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+# DPO hyperparams — TRL defaults are sensible; beta=0.1 is the standard start.
+beta: 0.1
+learning_rate: 5.0e-6
+num_train_epochs: 1
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
+max_length: 1024                  # prompt + response; RAG prompts are long
+max_prompt_length: 768

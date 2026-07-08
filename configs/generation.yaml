@@ -4,6 +4,5 @@ do_sample: false          # greedy for reproducible baseline
 temperature: 0.7          # only used if do_sample: true
 top_p: 0.9
 device: mps              # auto | cpu | cuda | mps
-dtype: float32               # fp16 on MPS degenerates during long sampling runs (Q9+ collapsed to gibberish). fp32 is slower but stable.
-seed: 20260704
+dtype: float16               
 stop_strings: []

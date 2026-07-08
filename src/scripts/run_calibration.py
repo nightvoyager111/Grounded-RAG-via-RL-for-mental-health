@@ -13,6 +13,10 @@ from pathlib import Path
 import yaml
 
 from src.grounded_rag.verifier import (
+    HHEMConfig,
+    HHEMVerifier,
+    LLMJudgeConfig,
+    LLMJudgeVerifier,
     NLIConfig,
     NLIVerifier,
     calibration_report,
@@ -22,7 +26,39 @@ from src.grounded_rag.verifier import (
 )
 
 
+def _build_verifier(raw: dict):
+    backend = raw.get("backend", "nli").lower()
+    if backend == "llm_judge":
+        return LLMJudgeVerifier(LLMJudgeConfig(
+            model_name=raw["judge_model_name"],
+            temperature=raw["judge_temperature"],
+            api_key_env=raw["judge_api_key_env"],
+        ))
+    if backend == "hhem":
+        return HHEMVerifier(HHEMConfig(
+            model_name=raw["hhem_model_name"],
+            revision=raw.get("hhem_revision"),
+            device=raw["device"],
+            passage_join=raw["passage_join"],
+            aggregate=raw.get("aggregate", "max"),
+        ))
+    if backend == "nli":
+        return NLIVerifier(NLIConfig(
+            model_name=raw["model_name"],
+            device=raw["device"],
+            dtype=raw["dtype"],
+            max_length=raw["max_length"],
+            passage_join=raw["passage_join"],
+            aggregate=raw.get("aggregate", "max"),
+        ))
+    raise ValueError(f"unknown backend: {backend!r}")
+
+
 def main() -> None:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--verifier-config", default="configs/verifier.yaml")
     ap.add_argument("--labeled", default=None,
@@ -37,15 +73,7 @@ def main() -> None:
     labeled_path = args.labeled or raw["calibration_labeled"]
     report_path = args.report or raw["calibration_report"]
 
-    nli_cfg = NLIConfig(
-        model_name=raw["model_name"],
-        device=raw["device"],
-        dtype=raw["dtype"],
-        max_length=raw["max_length"],
-        passage_join=raw["passage_join"],
-        aggregate=raw.get("aggregate", "max"),
-    )
-    verifier = NLIVerifier(nli_cfg)
+    verifier = _build_verifier(raw)
 
     records = read_labeled(labeled_path)
     if not records:

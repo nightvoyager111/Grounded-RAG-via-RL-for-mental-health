@@ -1,9 +1,23 @@
+backend: llm_judge        # "llm_judge" (Cohere Command) | "hhem" | "nli"
+
+# --- LLM-judge backend ---
+judge_model_name: command-r-plus-08-2024   # more compliant on medical text than command-a
+judge_temperature: 0.0
+judge_api_key_env: COHERE_API_KEY
+
+# --- HHEM backend (default) ---
+hhem_model_name: vectara/hallucination_evaluation_model
+hhem_revision: null       # pin a commit for reproducibility, or leave null
+
+# --- NLI backend (legacy) ---
 model_name: MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli
-device: auto              # auto | cpu | cuda | mps
 dtype: float32            # NLI head is small; fp32 avoids softmax noise
 max_length: 512           # premise+hypothesis truncation
+
+# --- Shared ---
+device: auto              # auto | cpu | cuda | mps
 passage_join: "\n\n"      # only used when aggregate == concat
-aggregate: max            # "max" (per-passage NLI, take max) | "concat" (legacy)
+aggregate: max            # "max" (per-passage, take max) | "concat" (legacy)
 
 # Decision threshold applied to score in [0, 1]. Calibration picks this;
 # 0.5 is the starting point (raw entail - contradict == 0).

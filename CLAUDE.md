@@ -4,6 +4,22 @@ This file is project context for Claude Code. It describes **what to build, in w
 
 ---
 
+## Progress (updated 2026-07-07)
+
+- ✅ **Step 1 — `eval/` metrics defined** (`groundedness_rate`, `citation_precision/recall`, `copy_rate`, `abstention_probe`).
+- ✅ **Step 2 — Data filtering.** Corpus + QA set filtered per Is-NOT rules.
+- ✅ **Step 3 — Baseline RAG** (Cohere Embed + Rerank + `Qwen/Qwen2.5-1.5B-Instruct`). Baseline `groundedness_rate` recorded (commit `1b8d702`).
+- ✅ **Step 4 — Verifier.** Built with three attempted backends behind one config switch (`configs/verifier.yaml`):
+  - DeBERTa-v3-MNLI (concat): rejected — 47% agreement.
+  - DeBERTa-v3-MNLI (max-over-passages): rejected — 69% agreement.
+  - Vectara HHEM-2.1: rejected — brittle HF compat with current `transformers`.
+  - **Cohere `command-r-plus-08-2024` as LLM-judge (5-level rubric): current backend.**
+- ✅ **Step 5 — Calibration gate.** 36 hand-labeled examples (17 positives via `prepare_calibration.py`, 15 hard negatives via `--hard-negatives` passage-swap). **Agreement 0.89 at threshold 0.5, precision=recall=0.89.** Gate passed. Report: `data/calibration/report.json`.
+
+**Foundation is done.** Next: Act 1 (DPO), starting at build-order step 6.
+
+---
+
 ## What this project is (and is not)
 
 **Is:** RL post-training of a RAG generator to be faithful to retrieved evidence, in the **RLAIF** family. A single groundedness **verifier** drives two training paths — **DPO** (fast baseline) and **GRPO** (reward-based, where reward hacking is studied). Domain: factual QA over mental-health clinical reference text. Retrieval stack: **Cohere Embed + Rerank**.

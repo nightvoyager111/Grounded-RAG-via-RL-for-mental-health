@@ -101,6 +101,38 @@ def abstention_probe(answer: str) -> int:
     return 1 if _ABSTENTION_RE.search(answer) else 0
 
 
+# Split the answer into sentences on . ! ? (followed by space or end-of-string).
+# Per the system prompt, a well-formed sentence ends "...text [chunk_id]." — so
+# we split BEFORE the period matters and check whether "...text [chunk_id]"
+# ends in a bracketed valid chunk.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+# Matches a trailing "[chunk_id]" (possibly followed by the terminal punctuation).
+_TAIL_CITE_RE = re.compile(r"\[([^\[\]]+?)\]\s*[.!?]*\s*$")
+
+
+def citation_compliance(answer: str, retrieved_ids: Sequence[str]) -> Optional[float]:
+    """Fraction of the answer's sentences that end with a valid [chunk_id]
+    from the retrieved set. Sharper than citation_recall for RL: gives one
+    signal per sentence instead of one aggregate per answer, so a policy
+    that adds even one more citation gets rewarded proportionally.
+
+    Returns None if the answer has no scorable sentences (empty, or matches
+    the abstention pattern — abstentions shouldn't be citation-scored).
+    """
+    if abstention_probe(answer):
+        return None
+    parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(answer.strip()) if p.strip()]
+    if not parts:
+        return None
+    valid = set(retrieved_ids)
+    hits = 0
+    for p in parts:
+        m = _TAIL_CITE_RE.search(p)
+        if m and m.group(1) in valid:
+            hits += 1
+    return hits / len(parts)
+
+
 def groundedness_rate(
     passages: Sequence[str],
     answer: str,

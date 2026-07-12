@@ -127,6 +127,7 @@ def main() -> None:
             citation_bonus_mu=cfg.get("citation_bonus_mu", 0.0),
             abstention_penalty_rho=cfg.get("abstention_penalty_rho", 0.0),
             abstention_ignore_score=cfg.get("abstention_ignore_score", 0.5),
+            citation_compliance_bonus_nu=cfg.get("citation_compliance_bonus_nu", 0.0),
         ),
     )
 

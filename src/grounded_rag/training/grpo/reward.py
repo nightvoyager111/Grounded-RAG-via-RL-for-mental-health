@@ -26,6 +26,7 @@ from typing import Callable, List, Optional, Sequence
 
 from src.grounded_rag.eval.metrics import (
     abstention_probe,
+    citation_compliance,
     citation_precision,
     citation_recall,
     copy_rate,
@@ -60,6 +61,13 @@ class RewardConfig:
     citation_bonus_mu: float = 0.0
     abstention_penalty_rho: float = 0.0
     abstention_ignore_score: float = 0.5
+
+    # v3 knob: per-sentence citation compliance bonus. Sharper than
+    # citation_recall aggregate because each sentence contributes its own
+    # signal — an extra citation added → proportional reward bump. This is
+    # the direct RL target of the "every factual sentence must end with a
+    # [chunk_id]" system-prompt rule.
+    citation_compliance_bonus_nu: float = 0.0
 
 
 class GroundednessReward:
@@ -129,6 +137,8 @@ class GroundednessReward:
             c_val = 0.0 if c is None else c
             cr = citation_recall(ans, ids)
             cr_val = 0.0 if cr is None else cr
+            comp = citation_compliance(ans, ids)
+            comp_val = 0.0 if comp is None else comp
             abst = abstention_probe(ans)
             # Only penalize abstention when the retrieved passages actually
             # look supportive (judge saw them as at least partially grounding
@@ -141,6 +151,7 @@ class GroundednessReward:
                 g
                 - self.cfg.copy_penalty_lambda * c_val
                 + self.cfg.citation_bonus_mu * cr_val
+                + self.cfg.citation_compliance_bonus_nu * comp_val
                 - abst_penalty
             )
             rewards.append(r)
@@ -152,6 +163,7 @@ class GroundednessReward:
                 "reward": r,
                 "citation_precision": citation_precision(ans, ids),
                 "citation_recall": cr,
+                "citation_compliance": comp,
                 "abstention": abst,
                 "answer": ans,
             })
@@ -175,12 +187,15 @@ class GroundednessReward:
                    if d["citation_precision"] is not None]
         cr_vals = [d["citation_recall"] for d in diagnostics
                    if d["citation_recall"] is not None]
+        comp_vals = [d["citation_compliance"] for d in diagnostics
+                     if d["citation_compliance"] is not None]
         avg_cp = sum(cp_vals) / len(cp_vals) if cp_vals else float("nan")
         avg_cr = sum(cr_vals) / len(cr_vals) if cr_vals else float("nan")
+        avg_comp = sum(comp_vals) / len(comp_vals) if comp_vals else float("nan")
         print(
             f"[reward step {self._step:04d}] "
             f"R={avg_r:.3f} g={avg_g:.3f} copy={avg_c:.3f} "
-            f"cite_p={avg_cp:.2f} cite_r={avg_cr:.2f} abst={abst:.2f} "
-            f"judge={judge_seconds:.1f}s (n={n})"
+            f"cite_p={avg_cp:.2f} cite_r={avg_cr:.2f} comp={avg_comp:.2f} "
+            f"abst={abst:.2f} judge={judge_seconds:.1f}s (n={n})"
         )
         return rewards

@@ -1,0 +1,37 @@
+{
+  "Baseline": {
+    "groundedness_rate": 0.74,
+    "copy_rate": 0.33,
+    "citation_precision": 1.0,
+    "citation_recall": 0.34,
+    "abstention": 0.12
+  },
+  "DPO": {
+    "groundedness_rate": 0.84,
+    "copy_rate": 0.13,
+    "citation_precision": 1.0,
+    "citation_recall": 0.10,
+    "abstention": 0.08
+  },
+  "GRPO v1 (on DPO)": {
+    "groundedness_rate": 0.82,
+    "copy_rate": 0.15,
+    "citation_precision": 0.95,
+    "citation_recall": 0.10,
+    "abstention": 0.08
+  },
+  "GRPO v1 (from base)": {
+    "groundedness_rate": 0.75,
+    "copy_rate": 0.33,
+    "citation_precision": 1.0,
+    "citation_recall": 0.33,
+    "abstention": 0.12
+  },
+  "GRPO v3": {
+    "groundedness_rate": 0.88,
+    "copy_rate": 0.23578257654755372,
+    "citation_precision": 0.9696969696969696,
+    "citation_recall": 0.2,
+    "abstention": 0.08
+  }
+}

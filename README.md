@@ -9,10 +9,18 @@ The project is a small-scale, end-to-end demonstration. It shows the *methodolog
 gate on calibration, ship DPO as a fast baseline, then push GRPO to
 observe reward-hacking and repair it with a compound reward.
 
+![GRPO v3 training diagnostics](reports/grpo_viz/training_diagnostics.png)
+
+*Reward trajectory, citation-repair signal, rollout attractor basins,
+and metric trends over the GRPO v3 training run (100-question rollout
+pool, compound reward with per-sentence citation compliance).*
+
 ## Results
 
 n=25 questions, LLM-judge groundedness (`command-r-plus-08-2024`),
 verifier calibration agreement 0.89.
+
+![Model comparison](reports/grpo_viz/model_comparison.png)
 
 | Metric | Baseline | DPO | GRPO v1 (on DPO) | **GRPO v3** |
 | --- | --- | --- | --- | --- |
@@ -32,9 +40,7 @@ verifier calibration agreement 0.89.
   citation compliance term**: halfway repaired the collapse
   (0.10 → 0.20) *and* lifted groundedness to a project peak of 0.88.
 
-Figures: [`reports/grpo_viz/model_comparison.png`](reports/grpo_viz/model_comparison.png) ·
-[`reports/grpo_viz/training_diagnostics.png`](reports/grpo_viz/training_diagnostics.png) ·
-per-case failures in [`reports/case_studies.md`](reports/case_studies.md).
+Per-case failures in [`reports/case_studies.md`](reports/case_studies.md).
 
 ## Method
 
@@ -116,8 +122,6 @@ python -m src.scripts.plot_grpo \
     --eval-compare reports/grpo_viz/eval_compare.json \
     --outdir reports/grpo_viz
 ```
-
-Detailed build spec + progress log in [`CLAUDE.md`](CLAUDE.md).
 
 ## Scope and limits
 

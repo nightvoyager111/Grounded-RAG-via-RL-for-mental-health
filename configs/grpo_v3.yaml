@@ -1,59 +1,40 @@
-# GRPO v3 (CLAUDE.md Act 2 step 10 — cite_r repair, sharper signal).
-#
-# What changes vs configs/grpo_v2.yaml:
-#   1. NEW: per-sentence citation_compliance_bonus_nu. This is the
-#      direct RL target of the "every factual sentence must end with
-#      [chunk_id]" system-prompt rule. Aggregate citation_recall gave
-#      one signal per answer; compliance gives one per sentence, so a
-#      policy that adds even one more citation gets proportional reward.
-#   2. citation_bonus_mu 0.4 → 0.3 (aggregate is still useful but less
-#      weight now that compliance carries the sharper signal).
-#   3. abstention_penalty_rho 0.3 → 0.4 (v2 still saw abstention hit
-#      0.38 mid-run; nudge harder).
-#   4. Prompt pool and question generation reused from v2. Same 100
-#      questions in data/qa/expanded_questions.jsonl.
-#
-# Reuses data/grpo/prompts_v2.jsonl since the rendered prompts don't
-# depend on the reward function.
-
-# --- Prompt prep ---
 questions_file: data/qa/expanded_questions.jsonl
 prompts_out: data/grpo/prompts_v2.jsonl
-
-# --- Policy init ---
 base_model: Qwen/Qwen2.5-1.5B-Instruct
 dpo_adapter: checkpoints/dpo
 output_dir: checkpoints/grpo_v3
-
-# --- Reward (compound + per-sentence citation compliance) ---
 copy_penalty_lambda: 0.5
 copy_ngram: 8
-citation_bonus_mu: 0.3                    # was 0.4 in v2
-citation_compliance_bonus_nu: 0.6         # NEW: dominant citation signal now
-abstention_penalty_rho: 0.4               # was 0.3 in v2
+citation_bonus_mu: 0.3
+citation_compliance_bonus_nu: 0.6
+abstention_penalty_rho: 0.4
 abstention_ignore_score: 0.5
 judge_max_workers: 8
 judge_model_name: command-r-08-2024
 judge_temperature: 0.0
 judge_api_key_env: COHERE_API_KEY
 reward_trace: data/grpo/reward_trace_v3.jsonl
-
-# --- LoRA ---
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.05
-lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
-
-# --- GRPO hyperparams ---
+lora_target_modules:
+- q_proj
+- k_proj
+- v_proj
+- o_proj
+- gate_proj
+- up_proj
+- down_proj
 num_generations: 4
 per_device_train_batch_size: 4
 gradient_accumulation_steps: 2
-learning_rate: 2.0e-6
+learning_rate: 2.0e-06
 beta: 0.04
 num_train_epochs: 2
 max_prompt_length: 1536
 max_completion_length: 256
 temperature: 0.9
 top_p: 0.95
-save_strategy: epoch
+save_strategy: steps
 logging_steps: 1
+save_steps: 25

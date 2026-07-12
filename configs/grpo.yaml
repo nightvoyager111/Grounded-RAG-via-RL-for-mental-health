@@ -1,0 +1,55 @@
+# GRPO knobs (CLAUDE.md Act 2). Two stages:
+#   - Prompt prep (prepare_grpo_prompts.py): retrieve once per question, dump
+#     prompt + retrieved passages so the rollout loop doesn't re-hit Cohere
+#     Embed/Rerank every step.
+#   - Training (train_grpo.py): GPU-bound, Colab T4. Reward calls Cohere
+#     Chat every step; that's the throughput bottleneck.
+
+# --- Prompt prep ---
+questions_file: data/qa/baseline_questions.jsonl
+prompts_out: data/grpo/prompts.jsonl        # per-row: prompt, retrieved_ids, retrieved_texts
+
+# --- Policy init ---
+# CLAUDE.md Act 2 continues the shippable path. Starting from the DPO
+# LoRA lets GRPO build on the +10 groundedness we already banked; the
+# collapse story (step 10) still holds because reward is intentionally
+# partial. If you want the cleaner attribution version, set
+# base_model to Qwen/Qwen2.5-1.5B-Instruct and dpo_adapter to null.
+base_model: Qwen/Qwen2.5-1.5B-Instruct
+dpo_adapter: checkpoints/dpo                # merge before training; null to skip
+output_dir: checkpoints/grpo
+
+# --- Reward (CLAUDE.md step 8) ---
+# Intentionally partial: no helpfulness, no citation compliance in reward.
+# The point is to observe collapse, then repair in step 10.
+copy_penalty_lambda: 0.5
+copy_ngram: 8
+judge_max_workers: 8                        # parallel Cohere chat calls per batch
+# Memory says switch to command-r (cheaper, faster) for GRPO — reward is
+# called ~G*num_steps times, judge cost dominates.
+judge_model_name: command-r-08-2024
+judge_temperature: 0.0
+judge_api_key_env: COHERE_API_KEY
+reward_trace: data/grpo/reward_trace.jsonl  # per-completion diagnostics
+
+# --- LoRA on top of the (already-LoRA'd) DPO base ---
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+# --- GRPO hyperparams ---
+# G (num_generations): group size for the GRPO baseline. 4 is the min
+# useful group; larger reduces variance at linear API cost.
+num_generations: 4
+per_device_train_batch_size: 4              # must be divisible by num_generations
+gradient_accumulation_steps: 2
+learning_rate: 1.0e-6                       # RL is more sensitive than SFT/DPO
+beta: 0.04                                  # KL coefficient to reference policy
+num_train_epochs: 3                         # ~25 Q x 3 = 75 rollout groups
+max_prompt_length: 1536
+max_completion_length: 256                  # answers should be short-and-cited
+temperature: 0.9                            # rollout sampling — spread across group
+top_p: 0.95
+save_strategy: epoch
+logging_steps: 1

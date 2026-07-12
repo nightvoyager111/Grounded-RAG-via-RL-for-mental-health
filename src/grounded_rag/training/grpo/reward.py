@@ -56,6 +56,10 @@ class GroundednessReward:
     generator — discourages "just copy the first passage" strategies).
     """
 
+    # TRL GRPOTrainer reads reward_func.__name__ for its metrics log; class
+    # instances don't have __name__ by default, so expose one explicitly.
+    __name__ = "groundedness_minus_copy"
+
     def __init__(self, judge: Callable[[Sequence[str], str], float], cfg: RewardConfig):
         self.judge = judge
         self.cfg = cfg

@@ -126,10 +126,14 @@ def main() -> None:
     )
 
     # --- GRPO trainer ---
+    import inspect
     import torch
     from trl import GRPOConfig, GRPOTrainer
 
-    grpo_cfg = GRPOConfig(
+    # TRL renames/removes GRPOConfig args between minor versions
+    # (e.g. max_prompt_length → tokenizer-side truncation). Filter by
+    # what this installed version actually accepts.
+    grpo_kwargs = dict(
         output_dir=output_dir,
         num_generations=cfg["num_generations"],
         per_device_train_batch_size=cfg["per_device_train_batch_size"],
@@ -149,6 +153,11 @@ def main() -> None:
         gradient_checkpointing_kwargs={"use_reentrant": False},
         remove_unused_columns=False,   # keep retrieved_ids/texts for reward
     )
+    accepted = set(inspect.signature(GRPOConfig).parameters)
+    dropped = [k for k in grpo_kwargs if k not in accepted]
+    if dropped:
+        print(f"GRPOConfig dropped unsupported kwargs for this TRL version: {dropped}")
+    grpo_cfg = GRPOConfig(**{k: v for k, v in grpo_kwargs.items() if k in accepted})
     trainer = GRPOTrainer(
         model=model,
         args=grpo_cfg,

@@ -43,6 +43,24 @@ class RewardConfig:
     # doesn't crash on a transient API error.
     fallback_score: float = 0.5
 
+    # Compound-reward knobs (Act 2 step 10). All default to 0 → the
+    # v1 collapse-inducing reward (g - lambda*copy) is preserved.
+    #
+    # citation_bonus_mu: weight on citation_recall reward. Fixes the
+    #   DPO-inherited citation collapse (0.34 → 0.10) by rewarding the
+    #   policy for using [chunk_id] markers on retrieved evidence. We
+    #   use recall (not precision) because precision was already 1.0
+    #   at baseline — the failure mode is dropping citations, not
+    #   inventing them.
+    # abstention_penalty_rho: subtracted when the answer abstains AND
+    #   the passages actually support an answer. Without this, "I don't
+    #   know" is a stable local optimum (R ≈ 0.5).
+    # abstention_ignore_score: if judge score >= this, we consider the
+    #   passages to have supported an answer, so abstention is penalized.
+    citation_bonus_mu: float = 0.0
+    abstention_penalty_rho: float = 0.0
+    abstention_ignore_score: float = 0.5
+
 
 class GroundednessReward:
     """Reward = groundedness - lambda * copy_penalty.
@@ -109,7 +127,22 @@ class GroundednessReward:
             g = groundedness[i]
             c = copy_rate(ans, cited_texts, n=self.cfg.copy_ngram)
             c_val = 0.0 if c is None else c
-            r = g - self.cfg.copy_penalty_lambda * c_val
+            cr = citation_recall(ans, ids)
+            cr_val = 0.0 if cr is None else cr
+            abst = abstention_probe(ans)
+            # Only penalize abstention when the retrieved passages actually
+            # look supportive (judge saw them as at least partially grounding
+            # something) — abstaining on a genuinely unanswerable question
+            # should not be punished.
+            abst_penalty = self.cfg.abstention_penalty_rho * abst * (
+                1.0 if g >= self.cfg.abstention_ignore_score else 0.0
+            )
+            r = (
+                g
+                - self.cfg.copy_penalty_lambda * c_val
+                + self.cfg.citation_bonus_mu * cr_val
+                - abst_penalty
+            )
             rewards.append(r)
 
             diagnostics.append({
@@ -118,8 +151,8 @@ class GroundednessReward:
                 "copy_rate": c,
                 "reward": r,
                 "citation_precision": citation_precision(ans, ids),
-                "citation_recall": citation_recall(ans, ids),
-                "abstention": abstention_probe(ans),
+                "citation_recall": cr,
+                "abstention": abst,
                 "answer": ans,
             })
 

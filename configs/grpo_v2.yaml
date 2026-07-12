@@ -1,0 +1,60 @@
+# GRPO v2 (CLAUDE.md Act 2 step 10 — repair the collapse).
+#
+# What changes vs configs/grpo.yaml:
+#   1. Expanded prompt pool: 100 questions (from generate_questions.py),
+#      not 25. GRPO variance drops, eval CIs tighten.
+#   2. Compound reward: adds a citation-recall bonus and an abstention
+#      penalty for supported questions. Rationale:
+#        - Act 1 DPO citation_recall collapsed 0.34 → 0.10 because the
+#          judge scored semantic support only. GRPO v1 inherited that.
+#          A direct mu * citation_recall term makes citing part of the
+#          reward, not just a diagnostic.
+#        - Abstention was a stable local optimum in v1 (R ≈ 0.5 for
+#          "I don't know"). Penalizing abstention only WHEN the passages
+#          would have supported an answer avoids punishing genuine
+#          uncertainty. `abstention_ignore_score` gates that check.
+#   3. Slightly hotter LR + fewer epochs — larger data means each step
+#      is more informative; we don't need to grind 3 epochs.
+
+# --- Prompt prep ---
+questions_file: data/qa/expanded_questions.jsonl
+prompts_out: data/grpo/prompts_v2.jsonl
+
+# --- Policy init ---
+base_model: Qwen/Qwen2.5-1.5B-Instruct
+dpo_adapter: checkpoints/dpo
+output_dir: checkpoints/grpo_v2
+
+# --- Reward (compound) ---
+copy_penalty_lambda: 0.5
+copy_ngram: 8
+citation_bonus_mu: 0.4          # NEW: repair citation collapse
+abstention_penalty_rho: 0.3     # NEW: kill the "I don't know" attractor
+abstention_ignore_score: 0.5    # only penalize abstention if judge ≥ 0.5 anyway
+judge_max_workers: 8
+judge_model_name: command-r-08-2024
+judge_temperature: 0.0
+judge_api_key_env: COHERE_API_KEY
+reward_trace: data/grpo/reward_trace_v2.jsonl
+
+# --- LoRA ---
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+# --- GRPO hyperparams ---
+num_generations: 4
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 2
+learning_rate: 2.0e-6           # hotter than v1's 1e-6 — 4x more data,
+                                # room to actually move the policy
+beta: 0.04
+num_train_epochs: 2              # 100 Q * 2 epochs / batch 8 ≈ 25 steps —
+                                # comparable step count to v1, more coverage
+max_prompt_length: 1536
+max_completion_length: 256
+temperature: 0.9
+top_p: 0.95
+save_strategy: epoch
+logging_steps: 1

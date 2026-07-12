@@ -1,0 +1,100 @@
+{"question": "What are the core features of generalized anxiety disorder?"}
+{"question": "How is major depressive disorder characterized?"}
+{"question": "What symptoms define post-traumatic stress disorder?"}
+{"question": "What are the diagnostic features of schizophrenia?"}
+{"question": "How is bipolar disorder distinguished from major depression?"}
+{"question": "What are the core symptoms of attention deficit hyperactivity disorder?"}
+{"question": "What defines autism spectrum disorder?"}
+{"question": "What are the primary features of obsessive-compulsive disorder?"}
+{"question": "What characterizes borderline personality disorder?"}
+{"question": "What is disruptive mood dysregulation disorder?"}
+{"question": "How does ICD-11 define mental, behavioural or neurodevelopmental disorders?"}
+{"question": "What is a developmental language disorder?"}
+{"question": "How is developmental speech sound disorder characterized?"}
+{"question": "What distinguishes a disorder of intellectual development from other neurodevelopmental disorders?"}
+{"question": "What are the presentations of ADHD recognized in ICD-11?"}
+{"question": "What is developmental learning disorder with impairment in reading?"}
+{"question": "How is autism spectrum disorder subdivided in ICD-11?"}
+{"question": "What are common symptoms of anxiety disorders described by NIMH?"}
+{"question": "According to NIMH, what treatments are used for depression?"}
+{"question": "What does NIMH say about the causes of schizophrenia?"}
+{"question": "How does NIMH describe the symptoms of PTSD?"}
+{"question": "What does NIMH describe as risk factors for bipolar disorder?"}
+{"question": "What is developmental motor coordination disorder?"}
+{"question": "What is the boiling point of tungsten?"}
+{"question": "Who won the 2019 Formula 1 world championship?"}
+{"question": "What is the most common form of encopresis and what does it involve?", "source_chunk_id": "icd11:mms:6C01.0"}
+{"question": "What is the diagnostic criterion for 'single episode depressive disorder, currently in full remission'?", "source_chunk_id": "icd11:mms:6A70.7"}
+{"question": "What type of disorder is autism spectrum disorder?", "source_chunk_id": "nimh:autism-spectrum-disorders-asd:fece85b3"}
+{"question": "What is the full form of ADHD?", "source_chunk_id": "nimh:attention-deficit-hyperactivity-disorder-adhd:2d6a61c3"}
+{"question": "What is the typical age range for the first diagnosis of schizophrenia?", "source_chunk_id": "nimh:schizophrenia:f9fb518d"}
+{"question": "What is volatile inhalant-induced delirium?", "source_chunk_id": "icd11:mms:6C4B.5"}
+{"question": "What is the defining characteristic of hallucinogen-induced mood disorder?", "source_chunk_id": "icd11:mms:6C49.60"}
+{"question": "What is the typical range of standard deviations below the mean for a moderate disorder of intellectual development?", "source_chunk_id": "icd11:mms:6A00.1"}
+{"question": "What is the diagnostic criteria for Bipolar type I disorder, current episode depressive, moderate without psychotic symptoms?", "source_chunk_id": "icd11:mms:6A60.4"}
+{"question": "What is the diagnostic criterion for synthetic cannabinoid dependence?", "source_chunk_id": "icd11:mms:6C42.20"}
+{"question": "What are the three ways in which harm to health can occur in an episode of harmful use of synthetic cathinones?", "source_chunk_id": "icd11:mms:6C47.0"}
+{"question": "What is the key criterion for diagnosing dementia due to psychoactive substances?", "source_chunk_id": "icd11:mms:6D84"}
+{"question": "What are the key characteristics of obsessive-compulsive and related disorders?", "source_chunk_id": "icd11:mms:1321276661"}
+{"question": "What type of movements are associated with dissociative neurological symptom disorder, with chorea?", "source_chunk_id": "icd11:mms:6B60.80"}
+{"question": "What is the definition of 'synthetic cathinone dependence, sustained partial remission'?", "source_chunk_id": "icd11:mms:6C47.22"}
+{"question": "What is the prevalence of ADHD in the United States?", "source_chunk_id": "nimh:attention-deficit-hyperactivity-disorder-adhd:654d4498"}
+{"question": "What is the defining characteristic of psychotic disorder induced by other specified psychoactive substance?", "source_chunk_id": "icd11:mms:6C4E.6"}
+{"question": "What is the diagnostic criterion for sustained partial remission of unknown or unspecified psychoactive substance dependence?", "source_chunk_id": "icd11:mms:6C4G.22"}
+{"question": "What is the diagnostic criterion for a single episode depressive disorder, moderate, with psychotic symptoms?", "source_chunk_id": "icd11:mms:6A70.2"}
+{"question": "What is the key characteristic of anxiety disorder induced by multiple specified psychoactive substances?", "source_chunk_id": "icd11:mms:6C4F.71"}
+{"question": "What is secondary anxiety syndrome?", "source_chunk_id": "icd11:mms:6E63"}
+{"question": "What are the two clinical presentations of agitation or aggression in dementia?", "source_chunk_id": "icd11:mms:6D86.4"}
+{"question": "What are clinical trials and what do they involve?", "source_chunk_id": "nimh:obsessive-compulsive-disorder-ocd:ac9654ed"}
+{"question": "What are the criteria for diagnosing a harmful pattern of use of synthetic cathinones?", "source_chunk_id": "icd11:mms:6C47.1"}
+{"question": "What is the key characteristic of opioid-induced mood disorder?", "source_chunk_id": "icd11:mms:6C43.70"}
+{"question": "What is the duration of abstinence required for a diagnosis of MDMA or related drug dependence to be considered in sustained full remission?", "source_chunk_id": "icd11:mms:6C4C.23"}
+{"question": "What is rumination-regurgitation disorder?", "source_chunk_id": "icd11:mms:6B85"}
+{"question": "What is the name of the syndrome that involves mental and behavioral features, including delusions and hallucinations, associated with pregnancy or the puerperium?", "source_chunk_id": "icd11:mms:6E21"}
+{"question": "What is the minimum duration of the pattern of episodic substance use for a diagnosis of Harmful pattern of use of other specified psychoactive substance?", "source_chunk_id": "icd11:mms:6C4E.10"}
+{"question": "What are some examples of stereotyped movements that are non-injurious?", "source_chunk_id": "icd11:mms:6A06"}
+{"question": "What organization is funding the clinical trials on schizophrenia listed on ClinicalTrials.gov?", "source_chunk_id": "nimh:schizophrenia:ccf2c83a"}
+{"question": "What are the key characteristics of mood disorder induced by unknown or unspecified psychoactive substance?", "source_chunk_id": "icd11:mms:6C4G.70"}
+{"question": "What is the principal psychoactive cannabinoid found in cannabis?", "source_chunk_id": "icd11:mms:6C41"}
+{"question": "What are the key symptoms of separation anxiety disorder?", "source_chunk_id": "icd11:mms:6B05"}
+{"question": "What is the key characteristic of intoxication due to multiple specified psychoactive substances?", "source_chunk_id": "icd11:mms:6C4F.3"}
+{"question": "What is the key characteristic of other specified psychoactive substance intoxication?", "source_chunk_id": "icd11:mms:6C4E.3"}
+{"question": "What is developmental language disorder?", "source_chunk_id": "icd11:mms:6A01.2"}
+{"question": "What is the key characteristic of psychotic disorder induced by multiple specified psychoactive substances?", "source_chunk_id": "icd11:mms:6C4F.6"}
+{"question": "What class of drugs can induce certain specified mental or behavioural disorders?", "source_chunk_id": "icd11:mms:6C46.7"}
+{"question": "Where can someone find mental health services and support in their local area?", "source_chunk_id": "nimh:bipolar-disorder:745cdbfc"}
+{"question": "What are clinical trials and how do they relate to the study of borderline personality disorder?", "source_chunk_id": "nimh:borderline-personality-disorder:282cb200"}
+{"question": "What is the main characteristic of developmental motor coordination disorder?", "source_chunk_id": "icd11:mms:6A04"}
+{"question": "What is the key characteristic of stimulant-induced anxiety disorder?", "source_chunk_id": "icd11:mms:6C46.71"}
+{"question": "What are the clinically significant mood symptoms that can accompany dementia?", "source_chunk_id": "icd11:mms:6D86.1"}
+{"question": "What are the key symptoms that define Synthetic cathinone-induced anxiety disorder?", "source_chunk_id": "icd11:mms:6C47.71"}
+{"question": "What is the typical timeframe for the onset of adjustment disorder symptoms following a psychosocial stressor?", "source_chunk_id": "icd11:mms:6B43"}
+{"question": "What additional criteria must be met for a diagnosis of single episode depressive disorder, severe, with psychotic symptoms?", "source_chunk_id": "icd11:mms:6A70.4"}
+{"question": "What is the diagnostic term for a first episode of acute and transient psychotic disorder that has fully remitted, with no significant symptoms remaining?", "source_chunk_id": "icd11:mms:6A23.02"}
+{"question": "What additional criterion must be met for a diagnosis of alcohol withdrawal with seizures?", "source_chunk_id": "icd11:mms:6C40.42"}
+{"question": "What is the key characteristic of cannabis-induced psychotic disorder?", "source_chunk_id": "icd11:mms:6C41.6"}
+{"question": "What is the key difference between factitious disorders and malingering?", "source_chunk_id": "icd11:mms:430567349"}
+{"question": "What is the key characteristic of a mild personality disorder?", "source_chunk_id": "icd11:mms:6D10.0"}
+{"question": "What are the two main characteristics of OCD?", "source_chunk_id": "nimh:obsessive-compulsive-disorder-ocd:9aa3e4c8"}
+{"question": "What is the defining characteristic of Frotteuristic Disorder?", "source_chunk_id": "icd11:mms:6D34"}
+{"question": "What is the primary focus of NIMH research regarding bipolar disorder?", "source_chunk_id": "nimh:bipolar-disorder:2dc30c7d"}
+{"question": "What is synthetic cathinone intoxication?", "source_chunk_id": "icd11:mms:6C47.3"}
+{"question": "What is the diagnostic status of a patient with schizoaffective disorder, multiple episodes, who is currently in full remission?", "source_chunk_id": "icd11:mms:6A21.12"}
+{"question": "What is the key characteristic of dementia due to the use of volatile inhalants?", "source_chunk_id": "icd11:mms:6D84.2"}
+{"question": "What is the key characteristic of synthetic cathinone-induced mood disorder?", "source_chunk_id": "icd11:mms:6C47.70"}
+{"question": "What is the defining characteristic of kleptomania?", "source_chunk_id": "icd11:mms:6C71"}
+{"question": "What is the time frame for achieving early full remission from alcohol dependence?", "source_chunk_id": "icd11:mms:6C40.22"}
+{"question": "What are the key characteristics of schizophrenia and other primary psychotic disorders?", "source_chunk_id": "icd11:mms:405565289"}
+{"question": "What plant is the stimulant cathinone naturally found in?", "source_chunk_id": "icd11:mms:6C47"}
+{"question": "What is the diagnostic criterion for a current manic episode in Bipolar type I disorder?", "source_chunk_id": "icd11:mms:6A60.0"}
+{"question": "What is the key characteristic of hallucinogen-induced delirium?", "source_chunk_id": "icd11:mms:6C49.4"}
+{"question": "What are the current treatment options for Disruptive Mood Dysregulation Disorder (DMDD)?", "source_chunk_id": "nimh:disruptive-mood-dysregulation-disorder-dmdd:c3c699fe"}
+{"question": "What is the key characteristic of voyeuristic disorder?", "source_chunk_id": "icd11:mms:6D31"}
+{"question": "What are the standard treatments for ADHD?", "source_chunk_id": "nimh:attention-deficit-hyperactivity-disorder-adhd:68f6a2f5"}
+{"question": "What is the key characteristic feature of volatile inhalant dependence?", "source_chunk_id": "icd11:mms:6C4B.2"}
+{"question": "What are the recognized mental disorders induced by dissociative drugs?", "source_chunk_id": "icd11:mms:6C4D"}
+{"question": "What are the key symptoms that define anxiety disorder induced by an unknown or unspecified psychoactive substance?", "source_chunk_id": "icd11:mms:6C4G.71"}
+{"question": "What is the key symptom that distinguishes this type of withdrawal from others?", "source_chunk_id": "icd11:mms:6C4E.42"}
+{"question": "What is the minimum duration of use required to diagnose a harmful pattern of sedative, hypnotic, or anxiolytic use?", "source_chunk_id": "icd11:mms:6C44.1"}
+{"question": "What are trait domain qualifiers and how do they relate to personality disorders?", "source_chunk_id": "icd11:mms:6D11"}
+{"question": "What are the primary symptoms of cocaine-induced psychotic disorder with mixed psychotic symptoms?", "source_chunk_id": "icd11:mms:6C45.62"}

@@ -122,6 +122,11 @@ def main() -> None:
             copy_ngram=cfg["copy_ngram"],
             judge_max_workers=cfg["judge_max_workers"],
             trace_path=cfg.get("reward_trace"),
+            # Optional compound-reward knobs (grpo_v2.yaml). Default to
+            # 0 so the old grpo.yaml still reproduces the v1 reward.
+            citation_bonus_mu=cfg.get("citation_bonus_mu", 0.0),
+            abstention_penalty_rho=cfg.get("abstention_penalty_rho", 0.0),
+            abstention_ignore_score=cfg.get("abstention_ignore_score", 0.5),
         ),
     )
 

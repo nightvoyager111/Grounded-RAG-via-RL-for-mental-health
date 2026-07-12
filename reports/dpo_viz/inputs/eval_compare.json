@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "groundedness_rate": 0.74,
+    "abstention": 0.12,
+    "copy_rate": 0.33,
+    "citation_precision": 1.0,
+    "citation_recall": 0.34
+  },
+  "dpo": {
+    "groundedness_rate": 0.84,
+    "abstention": 0.08,
+    "copy_rate": 0.13,
+    "citation_precision": 1.0,
+    "citation_recall": 0.10
+  }
+}

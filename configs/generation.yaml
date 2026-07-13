@@ -3,6 +3,6 @@ max_new_tokens: 200
 do_sample: false
 temperature: 0.7
 top_p: 0.9
-device: cuda
-dtype: float16
+device: mps
+dtype: float32
 stop_strings: []

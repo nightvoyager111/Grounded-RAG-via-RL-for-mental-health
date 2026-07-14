@@ -56,6 +56,8 @@ def main() -> None:
                          "Overrides generation.yaml if set.")
     ap.add_argument("--output-dir", default=None,
                     help="override eval output_dir (e.g. src/results/dpo-epoch5)")
+    ap.add_argument("--questions-file", default=None,
+                    help="override eval questions_file (e.g. the n=200 pool)")
     args = ap.parse_args()
 
     load_dotenv()
@@ -69,7 +71,7 @@ def main() -> None:
         copy_ngram=eval_raw.get("copy_ngram", 8),
         output_dir=args.output_dir or eval_raw["output_dir"],
     )
-    questions_file = eval_raw["questions_file"]
+    questions_file = args.questions_file or eval_raw["questions_file"]
 
     retriever = Retriever(retr_cfg)
     generator = HFGenerator(gen_cfg)

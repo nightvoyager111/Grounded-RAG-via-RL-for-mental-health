@@ -97,6 +97,8 @@ def main() -> None:
     ap.add_argument("--grpo-adapter", default=None,
                     help="override configs/grpo.yaml:output_dir")
     ap.add_argument("--output-dir", default="src/results/grpo")
+    ap.add_argument("--questions-file", default=None,
+                    help="override eval questions_file (e.g. the n=200 pool)")
     args = ap.parse_args()
 
     load_dotenv()
@@ -126,8 +128,9 @@ def main() -> None:
         api_key_env=vraw["judge_api_key_env"],
     ))
 
+    questions_file = args.questions_file or eval_raw["questions_file"]
     report = run_eval(
-        questions=_iter_questions(eval_raw["questions_file"]),
+        questions=_iter_questions(questions_file),
         retriever=retriever,
         generator=generator,
         verifier=verifier,

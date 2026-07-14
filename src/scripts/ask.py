@@ -4,10 +4,6 @@ Wires Retriever → HFGenerator (or StackedAdapterGenerator for GRPO, which
 needs base → merge(DPO) → load(GRPO) per evaluate_grpo.py) and prints
 the answer plus the retrieved passages it was allowed to cite.
 
-Usage:
-    python -m src.scripts.ask "what are the diagnostic criteria for GAD?"
-    python -m src.scripts.ask "..." --model dpo
-    python -m src.scripts.ask "..." --model grpo --top-k 5
 """
 from __future__ import annotations
 
@@ -40,12 +36,19 @@ def main() -> None:
                     help="override configs/grpo.yaml:output_dir")
     ap.add_argument("--top-k", type=int, default=None)
     ap.add_argument("--top-n", type=int, default=None)
+    ap.add_argument("--sample", action="store_true",
+                    help="turn on temperature sampling — makes baseline vs "
+                         "DPO vs GRPO differences more visible than greedy")
+    ap.add_argument("--temperature", type=float, default=0.7)
     args = ap.parse_args()
 
     load_dotenv()
 
     retr_cfg = load_retrieval_config(args.retrieval_config)
     gen_cfg = GenerationConfig(**_load_yaml(args.generation_config))
+    if args.sample:
+        gen_cfg.do_sample = True
+        gen_cfg.temperature = args.temperature
 
     if args.model == "baseline":
         generator = HFGenerator(gen_cfg)

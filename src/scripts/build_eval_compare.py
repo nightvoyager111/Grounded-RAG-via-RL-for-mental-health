@@ -40,6 +40,20 @@ METRIC_KEYS = [
     "abstention",
 ]
 
+# Derived metrics: per-row bernoulli indicators computed from the raw row
+# dict, then bootstrapped like any other metric. `citation_coverage` is the
+# fraction of answers that emitted at least one valid citation. It's the
+# sharpest signal of the DPO-collapse / GRPO-recovery story (baseline 92% →
+# DPO 48% → GRPO v3 72%), so it needs to be in the eval-compare JSON
+# explicitly, not just derivable from a raw count.
+DERIVED_METRICS = {
+    # A row "counts as cited" iff citation_precision was defined for it
+    # (i.e. the answer contained at least one bracketed id that matched
+    # a retrieved chunk — matches the eval.metrics.citation_precision
+    # None-when-no-citations contract).
+    "citation_coverage": lambda r: 1 if r.get("citation_precision") is not None else 0,
+}
+
 
 def _load(path: str) -> List[dict]:
     with open(path, encoding="utf-8") as f:
@@ -95,8 +109,16 @@ def main() -> None:
     for name, path in args.model:
         rows = _load(path)
         metrics_out = {}
+        # Raw metrics (skip None per-example, mean).
         for k in METRIC_KEYS:
             vals = [r.get(k) for r in rows]
+            ci = _bootstrap_ci(vals, args.n_resamples, rng)
+            if args.drop_n_defined:
+                ci.pop("n_defined", None)
+            metrics_out[k] = ci
+        # Derived metrics (bernoulli indicator per row → bootstrap the mean).
+        for k, indicator in DERIVED_METRICS.items():
+            vals = [indicator(r) for r in rows]
             ci = _bootstrap_ci(vals, args.n_resamples, rng)
             if args.drop_n_defined:
                 ci.pop("n_defined", None)
@@ -104,8 +126,10 @@ def main() -> None:
         out[name] = metrics_out
         # human-readable log line
         g = metrics_out["groundedness_rate"]
+        cov = metrics_out["citation_coverage"]
         cr = metrics_out["citation_recall"]
         print(f"  {name:<12} n={len(rows)}  g={g['value']:.3f} [{g['low']:.3f},{g['high']:.3f}]"
+              f"  cov={cov['value']:.3f} [{cov['low']:.3f},{cov['high']:.3f}]"
               f"  cite_r={cr['value']:.3f} [{cr['low']:.3f},{cr['high']:.3f}]")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

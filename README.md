@@ -17,30 +17,49 @@ pool, compound reward with per-sentence citation compliance).*
 
 ## Results
 
-n=25 questions, LLM-judge groundedness (`command-r-plus-08-2024`),
-verifier calibration agreement 0.89.
+LLM-judge groundedness (`command-r-plus-08-2024`), verifier calibration
+agreement 0.89. n=200 comparison table with bootstrap CIs coming — see
+[`reports/case_studies.md`](reports/case_studies.md) for per-case
+failures.
 
-![Model comparison](reports/grpo_viz/model_comparison.png)
+Story in one paragraph: **DPO** shipped a clean groundedness improvement
+but silently collapsed citation recall — the judge rewarded *semantic
+support only*, not `[chunk_id]` compliance. **GRPO v1** with
+`R = g − 0.5·copy` reproduced the classic reward-hacking pattern at
+rollout time (copy_rate → 0.85+, three-basin attractor structure
+visible in the reward trace above), but greedy eval was near-null vs
+DPO. **GRPO v3** with a compound reward — including a **per-sentence
+citation compliance term** — partially repaired the collapse *and*
+lifted groundedness above the DPO ceiling.
 
-| Metric | Baseline | DPO | GRPO v1 (on DPO) | **GRPO v3** |
-| --- | --- | --- | --- | --- |
-| groundedness_rate | 0.74 | 0.84 | 0.82 | **0.88** |
-| citation_recall | 0.34 | 0.10 | 0.10 | **0.20** |
-| citation_precision | 1.00 | 1.00 | 0.95 | 0.97 |
-| copy_rate | 0.33 | 0.13 | 0.15 | 0.24 |
-| abstention | 0.12 | 0.08 | 0.08 | 0.08 |
+## Try it
 
-- DPO shipped +10 points of groundedness but silently collapsed
-  citation recall (0.34 → 0.10): the LLM-judge scored *semantic
-  support only*, not `[chunk_id]` compliance.
-- GRPO v1 with `R = g − 0.5·copy` reproduced the reward-hacking pattern
-  at rollout time (copy_rate → 0.85+, three-basin attractor structure
-  visible in the reward trace), but greedy eval was near-null vs DPO.
-- GRPO v3 with a compound reward: including a **per-sentence
-  citation compliance term**: halfway repaired the collapse
-  (0.10 → 0.20) *and* lifted groundedness to a project peak of 0.88.
+Ask any of the three models a question interactively:
 
-Per-case failures in [`reports/case_studies.md`](reports/case_studies.md).
+```bash
+# Baseline (untuned base + RAG)
+python -m src.scripts.ask "What are the diagnostic criteria for generalized anxiety disorder?" --model baseline
+
+# DPO-tuned adapter
+python -m src.scripts.ask "..." --model dpo
+
+# GRPO v3 stack (base + DPO merged + GRPO on top)
+python -m src.scripts.ask "..." --model grpo
+```
+
+Under greedy decoding, baseline and GRPO often produce byte-identical
+outputs on easy questions — a small LoRA delta doesn't flip the
+argmax token at most positions. To *see* the models diverge, turn on
+sampling:
+
+```bash
+python -m src.scripts.ask "..." --model baseline --sample
+python -m src.scripts.ask "..." --model grpo     --sample
+```
+
+`--sample` uses `temperature=0.7` and amplifies small probability shifts
+between the models. Useful for demos and case-study writing; not a
+substitute for the greedy eval numbers above.
 
 ## Method
 
@@ -125,17 +144,22 @@ python -m src.scripts.plot_grpo \
 
 ## Scope and limits
 
-- **Scale:** 25 eval questions, 100 rollout prompts, 1.5B parameter
-  generator, ~2 hours total GPU. Research minimum for GRPO is ~5k
-  prompts / 1k steps; frontier is millions. Results are directionally
-  trustworthy, not magnitude-tight (95% CI on `groundedness` at n=25
-  is roughly ±0.10).
+- **Scale:** 100 rollout prompts, 1.5B parameter generator, ~2 hours
+  total GPU. Research minimum for GRPO is ~5k prompts / 1k steps;
+  frontier is millions. Bootstrap CIs on the n=200 eval quantify the
+  remaining uncertainty.
+- **Train / eval overlap:** the auto-generated 200-Q eval pool is a
+  superset of the 100-Q GRPO training pool (~50% overlap) and of the
+  25-Q DPO source pool (~12% overlap). GRPO v3 numbers in particular
+  should be read as in-distribution performance; a fully-held-out
+  eval would need re-generating from unseen corpus chunks.
 - **Domain:** ICD-11 + NIMH factual reference. **Not** a chatbot,
   therapy tool, or clinical decision aid. Filter drops
   personal-advice / self-harm items at the data stage.
 - **Verifier ceiling:** all groundedness numbers are bounded by the
   0.89 calibration agreement.
-- **Remaining v3 failure mode:** 14 of 25 answers emit zero citations
-  despite otherwise correct content (case 2 in `reports/case_studies.md`).
-  Full repair would need higher `citation_compliance_bonus_nu` or
-  claim-level decomposition; not in scope for this project.
+- **Remaining v3 failure mode:** on many questions the model emits
+  correct content but drops `[chunk_id]` markers entirely (case 2 in
+  [`reports/case_studies.md`](reports/case_studies.md)). Full repair
+  would need higher `citation_compliance_bonus_nu` or claim-level
+  decomposition; not in scope for this project.

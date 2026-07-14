@@ -159,9 +159,23 @@ def plot_training_curves(trace_path: Path, out: Path):
     print(f"wrote {out}")
 
 
+def _entry(model_metrics: dict, key: str):
+    """Return (value, low, high) for one metric. Accepts either:
+       - plain number:            {"groundedness_rate": 0.88}
+       - CI dict from bootstrap:  {"groundedness_rate": {"value": 0.88, "low": 0.82, "high": 0.93}}
+    Returns (None, None, None) if the metric is missing."""
+    v = model_metrics.get(key)
+    if v is None:
+        return None, None, None
+    if isinstance(v, dict):
+        return v.get("value"), v.get("low"), v.get("high")
+    return float(v), None, None
+
+
 def plot_eval_compare(eval_path: Path, out: Path):
-    """Grouped bar chart across arbitrary models. Expects
-    {"<model_name>": {metric: value, ...}, ...}."""
+    """Grouped bar chart across arbitrary models. Each metric value can be
+    either a plain number or {value, low, high} (from build_eval_compare.py);
+    the latter renders as an error bar."""
     data = json.loads(eval_path.read_text())
     models = list(data.keys())
     metrics = [m for m in METRIC_ORDER if all(m in data[k] for k in models)]
@@ -172,20 +186,41 @@ def plot_eval_compare(eval_path: Path, out: Path):
 
     fig, ax = plt.subplots(figsize=(12, 5.5), constrained_layout=True)
     for i, name in enumerate(models):
-        ys = [data[name].get(m) or 0 for m in metrics]
+        ys, err_lo, err_hi, has_ci = [], [], [], False
+        for m in metrics:
+            v, lo, hi = _entry(data[name], m)
+            v = 0.0 if v is None else v
+            ys.append(v)
+            if lo is not None and hi is not None:
+                err_lo.append(v - lo)
+                err_hi.append(hi - v)
+                has_ci = True
+            else:
+                err_lo.append(0.0)
+                err_hi.append(0.0)
+
         color = MODEL_COLORS[i % len(MODEL_COLORS)]
-        bars = ax.bar(x + (i - (n_models - 1) / 2) * w, ys, w,
-                      color=color, label=name, edgecolor="white", linewidth=1)
+        pos = x + (i - (n_models - 1) / 2) * w
+        yerr = np.array([err_lo, err_hi]) if has_ci else None
+        bars = ax.bar(pos, ys, w, color=color, label=name,
+                      edgecolor="white", linewidth=1,
+                      yerr=yerr, capsize=3,
+                      error_kw={"ecolor": "#333", "lw": 1, "alpha": 0.7})
         for r in bars:
             h = r.get_height()
-            ax.text(r.get_x() + r.get_width() / 2, h + 0.015,
+            # Push the label above the top whisker so it doesn't collide.
+            offset = 0.03 + (max(err_hi) if has_ci else 0)
+            ax.text(r.get_x() + r.get_width() / 2, h + offset,
                     f"{h:.2f}", ha="center", va="bottom", fontsize=8)
 
     ax.set_xticks(x)
     ax.set_xticklabels([METRIC_LABEL[m] for m in metrics])
-    ax.set_ylim(0, 1.15)
+    ax.set_ylim(0, 1.2)
     ax.set_ylabel("score")
-    ax.set_title("Eval Comparison (n=25, LLM-judge verifier)", fontweight="bold")
+    title = "Eval Comparison (LLM-judge verifier)"
+    if has_ci:
+        title += " · 95% bootstrap CIs"
+    ax.set_title(title, fontweight="bold")
     ax.legend(frameon=False, ncol=min(n_models, 4),
               loc="upper center", bbox_to_anchor=(0.5, -0.08))
     fig.savefig(out, bbox_inches="tight")

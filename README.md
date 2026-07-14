@@ -18,18 +18,16 @@ pool, compound reward with per-sentence citation compliance).*
 ## Results
 
 LLM-judge groundedness (`command-r-plus-08-2024`), verifier calibration
-agreement 0.89. n=200 comparison table with bootstrap CIs coming — see
-[`reports/case_studies.md`](reports/case_studies.md) for per-case
-failures.
+agreement 0.89. n=200 comparison table with bootstrap CIs coming.
 
 Story in one paragraph: **DPO** shipped a clean groundedness improvement
-but silently collapsed citation recall — the judge rewarded *semantic
+but silently collapsed citation recall, the judge rewarded *semantic
 support only*, not `[chunk_id]` compliance. **GRPO v1** with
 `R = g − 0.5·copy` reproduced the classic reward-hacking pattern at
 rollout time (copy_rate → 0.85+, three-basin attractor structure
 visible in the reward trace above), but greedy eval was near-null vs
-DPO. **GRPO v3** with a compound reward — including a **per-sentence
-citation compliance term** — partially repaired the collapse *and*
+DPO. **GRPO v3** with a compound reward, including a **per-sentence
+citation compliance term**, partially repaired the collapse *and*
 lifted groundedness above the DPO ceiling.
 
 ## Try it
@@ -48,7 +46,7 @@ python -m src.scripts.ask "..." --model grpo
 ```
 
 Under greedy decoding, baseline and GRPO often produce byte-identical
-outputs on easy questions — a small LoRA delta doesn't flip the
+outputs on easy questions, a small LoRA delta doesn't flip the
 argmax token at most positions. To *see* the models diverge, turn on
 sampling:
 
@@ -85,12 +83,12 @@ substitute for the greedy eval numbers above.
 variants and Vectara HHEM-2.1 all failed the calibration gate (see
 `configs/verifier.yaml` for the alternates).
 
-**Act 1 — DPO.** TRL `DPOTrainer` + LoRA (r=16, attention + MLP),
+**Step 1 — DPO.** TRL `DPOTrainer` + LoRA (r=16, attention + MLP),
 Qwen2.5-1.5B, Colab T4. 19 preference pairs from 25 questions
 (K=4 clean + H=2 passage-swapped hard negatives, judge-scored,
 gap ≥ 0.25). Result: +10 groundedness, cite_r collapse to 0.10.
 
-**Act 2 — GRPO.** TRL `GRPOTrainer` + LoRA on top of the merged DPO
+**Step 2 — GRPO.** TRL `GRPOTrainer` + LoRA on top of the merged DPO
 adapter. 100-question rollout pool (auto-generated from corpus, see
 `src/scripts/generate_questions.py`). Compound reward:
 
@@ -120,14 +118,14 @@ python -m src.scripts.label_calibration      # interactive hand-labeling
 python -m src.scripts.run_calibration        # verifier gate
 python -m src.scripts.run_baseline --verifier llm_judge
 
-# Act 1 — DPO
+# Step 1 — DPO
 python -m src.scripts.build_dpo_pairs
 # then on Colab (notebooks/dpo_colab.ipynb):
 python -m src.scripts.train_dpo
 python -m src.scripts.run_baseline --verifier llm_judge \
     --lora-adapter checkpoints/dpo --output-dir src/results/dpo
 
-# Act 2 — GRPO
+# Step 2 — GRPO
 python -m src.scripts.generate_questions --target 100
 python -m src.scripts.prepare_grpo_prompts --grpo-config configs/grpo_v3.yaml
 # then on Colab (notebooks/grpo_v3_colab.ipynb):
